@@ -1,12 +1,12 @@
 type cacheValue = string | number | any[] | object
 
-class cache {
+class Cache {
   getCache(key: string) {
     const value = window.localStorage.getItem(key)
     if (value) {
       return JSON.parse(value)
     } else {
-      return Promise.reject(new Error('错误'))
+      return ''
     }
   }
 
@@ -22,5 +22,5 @@ class cache {
     window.localStorage.clear()
   }
 }
-
+const cache = new Cache()
 export default cache

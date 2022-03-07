@@ -1,17 +1,10 @@
+import { cache } from '@/utils'
 import axios from 'axios'
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosInstance } from 'axios'
 
 import { ElLoading } from 'element-plus'
-interface WXConfig extends AxiosRequestConfig {
-  customInterceptors?: {
-    reqInterceptor?: (req: AxiosRequestConfig) => AxiosRequestConfig
-    reqErrInterceptor?: (err: any) => any
-    resInterceptor?: (res: AxiosResponse) => AxiosResponse
-    resErrInterceptor?: (err: any) => any
-  }
-  showLoading?: boolean
-}
 
+import type { WXConfig } from './types'
 class HYRequest {
   instance: AxiosInstance
   loading: any
@@ -41,7 +34,11 @@ class HYRequest {
             background: 'rgba(0, 0, 0, 0.3)'
           })
         }
-
+        if (cache.getCache('token')) {
+          if (req.headers) {
+            req.headers.Authorization = 'Bearer ' + cache.getCache('token')
+          }
+        }
         return req
       },
       (err) => {
@@ -51,7 +48,7 @@ class HYRequest {
 
     this.instance.interceptors.response.use(
       (res) => {
-        return res
+        return res.data
       },
       (err) => {
         return err
@@ -59,21 +56,20 @@ class HYRequest {
     )
   }
 
-  request(config: WXConfig) {
+  request<T>(config: WXConfig<T>) {
     if (config.customInterceptors?.reqInterceptor) {
       config = config.customInterceptors.reqInterceptor(config)
     }
     if (config.showLoading === false) {
       this.showLoading = false
     }
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       this.instance
-        .request(config)
+        .request<any, T>(config)
         .then((res) => {
           if (config.customInterceptors?.resInterceptor) {
             res = config.customInterceptors.resInterceptor(res)
           }
-
           resolve(res)
         })
         .catch((err) => {
@@ -83,6 +79,22 @@ class HYRequest {
           this.loading.close()
         })
     })
+  }
+
+  get<T>(config: WXConfig<T>) {
+    return this.request({ method: 'GET', ...config })
+  }
+
+  post<T>(config: WXConfig<T>) {
+    return this.request({ method: 'POST', ...config })
+  }
+
+  delete<T>(config: WXConfig<T>) {
+    return this.request({ method: 'DELETE', ...config })
+  }
+
+  patch<T>(config: WXConfig<T>) {
+    return this.request({ method: 'PATCH', ...config })
   }
 }
 

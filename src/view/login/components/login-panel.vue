@@ -47,7 +47,7 @@ const active = ref('account')
 const isKeepPassword = ref(true)
 
 const handleClickLogin = () => {
-  accountRef.value.login()
+  accountRef.value.login(isKeepPassword.value)
 }
 </script>
 
