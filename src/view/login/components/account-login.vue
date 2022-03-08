@@ -19,7 +19,8 @@ import { ElMessage } from 'element-plus/es'
 import 'element-plus/theme-chalk/el-form.css'
 import { cache } from '@/utils'
 import store from '@/store'
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const account = ref({
   name: cache.getCache('name') || '',
   password: cache.getCache('password') || ''
@@ -27,14 +28,16 @@ const account = ref({
 const formRef = ref<InstanceType<typeof ElForm>>()
 
 const login = (isKeepPassword) => {
-  formRef.value?.validate((res) => {
+  formRef.value?.validate(async (res) => {
     if (isKeepPassword) {
       cache.setCache('name', account.value.name)
       cache.setCache('password', account.value.password)
     }
 
     if (res) {
-      store.dispatch('login/loginAction', account.value)
+      await store.dispatch('login/loginAction', account.value)
+
+      router.push('/')
     } else {
       ElMessage.warning('请输入正确格式的账号密码')
     }

@@ -29,7 +29,15 @@ router.beforeEach((to) => {
   if (to.path === '/login') {
     const token = cache.getCache('token')
     if (token) {
+      console.log(312321)
       return '/'
+    }
+  }
+  if (to.path !== '/login') {
+    const token = cache.getCache('token')
+    if (!token) {
+      console.log(312321)
+      return '/login'
     }
   }
 })

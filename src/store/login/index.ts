@@ -1,7 +1,7 @@
 import { ILoginResult } from './../../service/login/types'
 import { getUserInfo, getUserMenus, login } from './../../service/login/index'
 import type { Module } from 'vuex'
-
+import router from '@/router'
 import type { ILoginState } from './type'
 import { IRootState } from '../types'
 import { cache } from '@/utils'
@@ -12,10 +12,13 @@ export const loginModule: Module<ILoginState, IRootState> = {
     const token = cache.getCache('token') || ''
     const userInfo = cache.getCache('userInfo') || {}
     const userMenus = cache.getCache('userMenus') || []
+    const currentPath =
+      cache.getCache('currentPath') || '/main/analysis/overview'
     return {
       token,
       userInfo,
-      userMenus
+      userMenus,
+      currentPath
     }
   },
   mutations: {
@@ -30,6 +33,10 @@ export const loginModule: Module<ILoginState, IRootState> = {
     changeUserMenus(state, payload) {
       state.userMenus = payload
       cache.setCache('userMenus', payload)
+    },
+    changeCurrentPath(state, payload) {
+      state.currentPath = payload
+      cache.setCache('currentPath', payload)
     }
   },
   actions: {
@@ -41,6 +48,10 @@ export const loginModule: Module<ILoginState, IRootState> = {
       const userMenus = await getUserMenus(id)
       commit('changeUserInfo', userInfo.data)
       commit('changeUserMenus', userMenus.data)
+    },
+    leaveAction: () => {
+      cache.clearCache()
+      router.push('/login')
     }
   },
   getters: {}

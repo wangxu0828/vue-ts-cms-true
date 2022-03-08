@@ -1,23 +1,56 @@
 <template>
   <div class="container">
     <el-container>
-      <el-aside width="200px"><navMenu></navMenu></el-aside>
+      <el-aside :width="isFolding ? '60px' : '200px'">
+        <navMenu :isFolding="isFolding"></navMenu>
+      </el-aside>
       <el-container>
-        <el-header>Header</el-header>
-        <el-main>Main</el-main>
+        <el-header>
+          <nav-header
+            :isFolding="isFolding"
+            @ChangeFold="ChangeFold"
+          ></nav-header>
+        </el-header>
+        <el-main>
+          <div class="page-content">
+            <router-view></router-view>
+          </div>
+        </el-main>
       </el-container>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import {} from 'vue'
+import { computed, ref } from 'vue'
+import { useStore } from '@/store'
 import navMenu from '@/components/nav-menu'
+import navHeader from '@/components/nav-header'
+import { mapMenuToRoute } from '@/utils'
+
+const store = useStore()
+
+const userMenus = computed(() => {
+  return store.state.login.userMenus
+})
+
+mapMenuToRoute(userMenus.value)
+
+const isFolding = ref(false)
+
+const ChangeFold = () => {
+  isFolding.value = !isFolding.value
+}
 </script>
 
 <style lang="less" scoped>
 .container {
   height: 100%;
+  .page-content {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 10px;
+  }
 }
 ::v-deep .el-container {
   height: 100%;
@@ -52,6 +85,7 @@ import navMenu from '@/components/nav-menu'
   .el-main {
     color: #333;
     text-align: center;
+    background-color: #f0f2f5;
   }
 }
 </style>
